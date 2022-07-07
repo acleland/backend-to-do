@@ -15,4 +15,10 @@ CREATE TABLE todos (
   task VARCHAR NOT NULL,
   done BOOLEAN NOT NULL DEFAULT(false),
   FOREIGN KEY (user_id) REFERENCES todo_users(id)
-)
+);
+
+INSERT INTO todo_users (email, password_hash) VALUES
+('andrea@example.com', '$2b$10$WprHjgi4mmUPTwXzCSG/MO3hZFK6kfCgC8ZTx58w9EENEm0SrT092');
+
+INSERT INTO todos (user_id, task, done) 
+    VALUES (1, 'Pet the cat', false)
