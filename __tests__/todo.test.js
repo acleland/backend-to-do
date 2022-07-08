@@ -86,6 +86,22 @@ describe('backend-express-template routes', () => {
     expect(resp.body).toEqual({ ...todo, done: true });
   });
 
+  it('UPDATE /api/v1/todos/:id should 403 for invalid users', async () => {
+    // create a user
+    const [agent] = await registerAndLogin();
+    // create a second user
+    const user2 = await UserService.create(andrea);
+    const todo = await Todo.add({
+      task: 'Take the cat to the vet',
+      done: false,
+      user_id: user2.id,
+    });
+    const resp = await agent
+      .put(`/api/v1/todos/${todo.id}`)
+      .send({ done: true });
+    expect(resp.status).toBe(403);
+  });
+
   afterAll(() => {
     pool.end();
   });
