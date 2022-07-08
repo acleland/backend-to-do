@@ -3,6 +3,8 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
+const Todo = require('../lib/models/Todo');
+const User = require('../lib/models/User');
 
 const mockUser = {
   email: 'test@example.com',
@@ -59,9 +61,17 @@ describe('backend-express-template routes', () => {
   });
 
   it('returns the todos for a given user', async () => {
-    const [agent, user] = await signIn(andrea);
+    const [agent, user] = await registerAndLogin(mockUser);
+    const user2 = await UserService.create(andrea);
+    const user1Todo = await Todo.add({ ...mockTodo, user_id: user.id });
+    await Todo.add({
+      task: 'Feed the cat',
+      done: false,
+      user_id: user2.id,
+    });
     const resp = await agent.get('/api/v1/todos');
     expect(resp.status).toEqual(200);
+    expect(resp.body).toEqual([user1Todo]);
   });
 
   afterAll(() => {
