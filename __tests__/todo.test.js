@@ -102,6 +102,19 @@ describe('backend-express-template routes', () => {
     expect(resp.status).toBe(403);
   });
 
+  it('DELETE /todos/:id should delete todos for valid users', async () => {
+    const [agent, user] = await registerAndLogin();
+    const todo = await Todo.add({
+      ...mockTodo,
+      user_id: user.id,
+    });
+    const resp = await agent.delete(`/api/v1/todos/${todo.id}`);
+    expect(resp.status).toBe(200);
+
+    const check = await Todo.getById(todo.id);
+    expect(check).toBeNull();
+  });
+
   afterAll(() => {
     pool.end();
   });
