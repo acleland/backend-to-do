@@ -4,7 +4,6 @@ const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
 const Todo = require('../lib/models/Todo');
-const User = require('../lib/models/User');
 
 const mockUser = {
   email: 'test@example.com',
@@ -37,11 +36,11 @@ const registerAndLogin = async (userProps = {}) => {
   return [agent, user];
 };
 
-const signIn = async (user) => {
-  const agent = request.agent(app);
-  await agent.post('/api/v1/users/sessions').send(user);
-  return [agent, user];
-};
+// const signIn = async (user) => {
+//   const agent = request.agent(app);
+//   await agent.post('/api/v1/users/sessions').send(user);
+//   return [agent, user];
+// };
 
 describe('backend-express-template routes', () => {
   beforeEach(() => {
@@ -72,6 +71,19 @@ describe('backend-express-template routes', () => {
     const resp = await agent.get('/api/v1/todos');
     expect(resp.status).toEqual(200);
     expect(resp.body).toEqual([user1Todo]);
+  });
+
+  it('UPDATE /api/v1/todos/:id should update an item', async () => {
+    const [agent, user] = await registerAndLogin();
+    const todo = await Todo.add({
+      task: 'Pet the kitty',
+      done: false,
+      user_id: user.id,
+    });
+    const resp = await agent
+      .put(`/api/v1/todos/${todo.id}`)
+      .send({ done: true });
+    expect(resp.body).toEqual({ ...todo, done: true });
   });
 
   afterAll(() => {
